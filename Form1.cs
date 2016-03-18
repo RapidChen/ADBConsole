@@ -26,6 +26,8 @@ namespace ADBConsole
         String m_tagFilter;
         Boolean m_tagFilterEnabled;
 
+        bool m_OnlyUnity = false;
+
         const int maxLines = 100000;
         List<String> m_logList;
 
@@ -154,7 +156,14 @@ namespace ADBConsole
                     ADBCMD = "adb logcat -c";
                     m_bCMDQueuing = true;
                     m_ADBCommandQueueWriter.Enqueue(ADBCMD);
-                    ADBCMD = "adb logcat -v time";
+                    if (m_OnlyUnity)
+                    {
+                        ADBCMD = "adb logcat -s Unity -v time";
+                    }
+                    else
+                    {
+                        ADBCMD = "adb logcat -v time";
+                    } 
                     m_ADBCommandQueueWriter.Enqueue(ADBCMD);
                     m_bCMDQueuing = false;
                 }
@@ -317,6 +326,18 @@ namespace ADBConsole
             //use double buffer to improve performance
             System.Reflection.PropertyInfo aProp = typeof(ListView).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             aProp.SetValue(consoleBox, true, null);            
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (CheckState.Checked == this.UnityCheck.CheckState)
+            {
+                m_OnlyUnity = true;
+            }
+            else
+            {
+                m_OnlyUnity = false;
+            }
         }
     }
 }
