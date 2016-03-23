@@ -1,3 +1,7 @@
+using UnityEngine;
+using UnityEditor;
+using NUnit.Framework;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -57,7 +61,6 @@ namespace ADBConsole
 
             m_WinOutputQueueReader = null;
 
-            string errorStr;
 
             CMDThread = new Thread(new ThreadStart(RunCMD));            
         }
@@ -103,7 +106,7 @@ namespace ADBConsole
                 }
                 catch (Exception err)
                 {
-                    Console.WriteLine("Stop CMD thread." + err.Message);
+                    UnityEngine.Debug.LogError("Stop CMD thread." + err.Message);
                     Cleanup();
                     break;
                 }
@@ -112,16 +115,29 @@ namespace ADBConsole
 
         public void Exit()
         {
-            if ( processCmd != null && !processCmd.HasExited)
-            {
-                try { 
-                    processCmd.Kill(); 
+            string str;
+            //if ( processCmd != null && !processCmd.HasExited)
+            //{
+                try {
+                //processCmd.Kill();
+                Process[] pro = Process.GetProcesses();//获取已开启的所有进程
+                                                       //遍历所有查找到的进程
+                for (int i = 0; i < pro.Length; i++)
+                {
+                    //判断此进程是否是要查找的进程
+                    str = pro[i].ProcessName.ToString().ToLower();
+                    if (str == "adb" || str == "cmd") 
+                    {
+                        pro[i].Kill();//结束进程
+                    }
+                }
+                UnityEngine.Debug.Log("Console stoped here.");
                 }
                 catch (Exception err)
                 {
-                    Console.WriteLine("Cleanup exception: " + err.Message);
+                    UnityEngine.Debug.LogError("Cleanup exception: " + err.Message);
                 };
-            }
+            //}
         }
 
         private void CmdOutputDataHandler(object sendingProcess, DataReceivedEventArgs outLine)
@@ -136,7 +152,7 @@ namespace ADBConsole
                 }
                 catch (Exception err)
                 {
-                    Console.WriteLine("CMD Thread Exception: " + err.Message);
+                    UnityEngine.Debug.LogError("CMD Thread Exception: " + err.Message);
                 }
             }
         }
@@ -147,11 +163,11 @@ namespace ADBConsole
             {
                 try
                 {
-                    Console.WriteLine("CMD Error: " + outLine.Data);
+                    UnityEngine.Debug.LogError("CMD Error: " + outLine.Data);
                 }
                 catch (Exception err)
                 {
-                    Console.WriteLine("CMD Error Handler Exception: " + err.Message);
+                    UnityEngine.Debug.LogError("CMD Error Handler Exception: " + err.Message);
                 }
 
             }
@@ -162,7 +178,7 @@ namespace ADBConsole
             try { processCmd.Kill(); }
             catch (Exception err)
             {
-                Console.WriteLine("Cleanup exception: " + err.Message);
+                UnityEngine.Debug.LogError("Cleanup exception: " + err.Message);
             };
             
             m_CMDOutputQueue.Clear();
