@@ -1,5 +1,6 @@
 ADBConsole
 ==========
+Transplated for Unity.
 
 A C# app to receive, save and load the message from adb console.
 
